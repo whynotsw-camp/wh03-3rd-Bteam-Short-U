@@ -54,6 +54,8 @@
 
 ![시스템 구성도](https://github.com/user-attachments/assets/cf484aae-e154-416e-83a1-bfa4d13da5ac)
 
+**숏폼 제작 파이프라인**
+
 ![숏폼 파이프라인1](https://github.com/user-attachments/assets/7481e024-5c74-4ccd-96a0-670a09c47523)
 ![숏폼 파이프라인2](https://github.com/user-attachments/assets/6c809aed-f624-4bee-8dc3-3085719dcb0f)
 
