@@ -1,0 +1,2933 @@
+{
+	"info": {
+		"_postman_id": "33345d98-5480-4ab5-8997-c43f3b153d0d",
+		"name": "쇼츠-유",
+		"description": "## 🎬 쇼츠-유 API 문서\n\n### 📌 개요\n\n쇼츠-유는 사용자 맞춤형 뉴스/영화 쇼츠(Shorts) 영상을 제공하고, 관심 기반 추천/구독/기록 기능을 지원하는 콘텐츠 플랫폼입니다.\n\n이 문서는 프론트엔드 및 테스트 유저를 위한 API 명세서입니다.\n\n---\n\n### 📁 공통 정보\n\n| 항목 | 설명 |\n| --- | --- |\n| Base URL | `http://localhost:8000/api` |\n| 요청 형식 | `application/json` |\n| 응답 형식 | `application/json` |\n| 인증 방식 | 세션 사용 |\n\n---\n\n### 🔐 인증 방식\n\n모든 인증이 필요한 요청에는 아래의 Header가 필요합니다.\n\n#### 🔸 필수 Headers\n\n| Key | Value | 설명 |\n| --- | --- | --- |\n| Cookie | `sessionid=` | 클라이언트가 로그인 후 서버가 발급한 세션 ID |\n| X-Profile-ID | `{{profile-id}}` | 사용자가 선택한 프로필 ID |\n\n---\n\n### 📦 요청 실패시 공통 응답 형식\n\n모든 API 응답은 실패시 다음과 같은 구조로 반환됩니다:\n\n```\n{\n    \"code\": '공통 에러 코드',\n    \"message\": {\n        \"detail\": \"공통 설명.\"\n    },\n    \"errors\": {\n        \"필드\": [\n            \"필드 상세 메시지\"\n        ]\n    }\n}\n\n ```\n\n---\n\n### ❌ 공통 에러 코드\n\n| HTTP 상태 코드 | 설명 | **메시지** |\n| --- | --- | --- |\n| 400 Bad Request | 필수 파라미터 누락/형식 오류 | 유효성 검사에 실패했습니다 |\n| 401 Unauthorized | 인증 실패 (토큰 없음/만료) | 인증 정보가 없습니다. 로그인 해주세요 |\n| 403 Forbidden | 권한 없음 | 접근 권한이 없습니다 |\n| 404 Not Found | 리소스를 찾을 수 없음 | 요청한 리소스를 찾을 수 없습니다 |\n| 405 Not Allowed | 허용되지 않은 HTTP메소드 | 허용되지 않은 요청 방식입니다 |\n| 409 Conflict | 중복 요청, 상태 충돌 등 | 요청한 리소스가 이미 존재하거나 충돌이 발생했습니다 |\n| 500 Server Error | 서버 내부 오류 | 요청을 처리하는 도중 오류가 발생했습니다 |\n\n---\n\n## 📘인증 방식\n\n- 이 API는 Django 세션 기반 인증을 사용합니다.\n    \n- `/users/login` API를 통해 로그인 후, 서버에서 제공하는 `sessionid` 쿠키가 자동 저장됩니다.\n    \n- 이후 요청에는 별도 인증 토큰 없이 쿠키를 통해 인증이 유지됩니다.\n    \n\n### 📌 주요 Collection 변수\n\n| 변수명 | 설명 | 사용 위치 |\n| --- | --- | --- |\n| `{{api-url}}` | API 기본 주소 | 모든 요청 URL |\n| `{{profile-id}}` | 선택된 프로필 ID | X-Profile-ID 헤더 |\n\n---\n\n### 📚 카테고리별 API 구성\n\n- 🔐 Users\n    \n    - `POST /users/` – 유저 생성\n        \n    - `DELETE /users/{user_id}/` – 유저 삭제\n        \n\n- 🔐 Auth\n    \n    - `POST /auth/login/` – 유저 로그인\n        \n    - `POST /auth/logout/` – 로그아웃\n        \n    - `POST /auth/password-reset/request/`– 비밀번호 초기화-이메일 입력\n        \n    - `POST /users/password-reset/confirm/{uidb}/{token}/` – 비밀번호 초기화-확인\n        \n    - `POST /auth/csrf/` – csrf 토큰 생성\n        \n    - `POST /auth/test-auth/` – 세션 테스트\n        \n- 👤 Profile\n    \n    - `POST /users/{user_id}/profiles/`– 프로필 생성\n        \n    - `PATCH /users/{user_id}/profiles/{profile_id}/`– 프로필 수정\n        \n    - `DELETE /users/{user_id}/profiles/{profile_id}/`– 프로필 삭제\n        \n    - `POST /users/{user_id}/profiles/{profile_id}/activate/` – 프로필 전환\n        \n- 🎞 Shorts\n    \n    - `GET /shorts` – 쇼츠 목록 조회\n        \n    - `GET /shorts/?title={title}&content={content}&page={page}` – 쇼츠 검색\n        \n    - `POST /shorts/save` – 쇼츠 저장\n        \n    - `POST /shorts/{short_id}/reaction`– 반응 등록\n        \n- 📺 Program\n    \n    - `POST /program/{program_id}/subscribe` – 프로그램 구독\n        \n    - `DELETE /program/{program_id}/subscribe` – 프로그램 구독 취소\n        \n- 📜 History\n    \n    - `POST /watch-history` – 시청 기록 등록\n        \n    - `GET /watch-history` – 시청 기록 목록\n        \n\n---\n\n### 🙋🏻‍♂️문의\n\n문서 또는 API 관련 문의는 디스코드에서 제 닉네임 **Lemur**로 DM 주세요.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43949663",
+		"_collection_link": "https://jjangdol.postman.co/workspace/JJang-dol's-Workspace~14c9c68e-4da7-438e-8c6e-c3dd15fffba9/collection/43949663-33345d98-5480-4ab5-8997-c43f3b153d0d?action=share&source=collection_link&creator=43949663"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "유저 생성",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "a2cWP7VXvG7MoE1HzYVaLYYAXDEMgxOq",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"kimchulsu@example.com\",\r\n  \"password1\": \"abcde123\",\r\n  \"password2\": \"abcde123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/signup/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"signup",
+								""
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "created_at",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"user123@example.com\",\r\n  \"password1\": \"securepassword123\",\r\n  \"password2\": \"securepassword123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유저가 성공적으로 생성 되었습니다.\"\r\n    },\r\n    \"data\": {\r\n        \"id\": 8,\r\n        \"email\": \"user8@example.com\"\r\n    }\r\n}"
+						},
+						{
+							"name": "400(필수 필드 누락)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"user123@example.com\",\r\n  \"password\": \"securepassword\",\r\n  \"password2\": \"securepassword1@#!$\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "user_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "created_at",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"password1\": [\r\n            \"비밀번호는 필수입니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "400(비밀번호 불일치)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"user123@example.com\",\r\n  \"password1\": \"securepassword\",\r\n  \"password2\": \"securepasswor1d\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "user_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "created_at",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"non_field_errors\": [\r\n            \"비밀번호가 일치하지 않습니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "400(이메일 형식X)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"user@!example.com\",\r\n  \"password1\": \"securepassword\",\r\n  \"password2\": \"securepassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "user_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "created_at",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"email\": [\r\n            \"유효한 이메일 주소를 입력해주세요.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "유저 로그인",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"if (response && response.token) {\r",
+									"    pm.collectionVariables.set(\"authToken\", response.token);\r",
+									"    console.log(\"DRF 토큰 저장 성공:\", response.token);\r",
+									"} else {\r",
+									"    console.error(\"DRF 토큰 응답에 'token' 키가 없습니다.\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"k@k.com\",\r\n  \"password\": \"k\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/login/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-CSRFToken",
+										"value": "{{csrftoken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"securepassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/auth/login/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"auth",
+										"login",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"로그인 성공\",\r\n    \"data\": {}\r\n}"
+						},
+						{
+							"name": "400(로그인정보 불일치)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-CSRFToken",
+										"value": "{{csrftoken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/auth/login/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"auth",
+										"login",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"authentication_error\": [\r\n            \"이메일 또는 비밀번호가 일치하지 않습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "유저 삭제",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{api-url}}/users/2/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"2",
+										""
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"유저가 성공적으로 생성 되었습니다.\",\r\n    \"data\": {\r\n        \"id\": 8,\r\n        \"email\": \"user8@example.com\"\r\n    }\r\n}"
+						},
+						{
+							"name": "401-Unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{api-url}}/users/2/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"2",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 403,\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"authentication_error\": [\r\n            \"권한이 없습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "유저 로그아웃",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/logout/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"logout",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/auth/logout/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"auth",
+										"logout",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"logout\",\r\n}"
+						}
+					]
+				},
+				{
+					"name": "비밀번호 초기화-이메일 입력",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"jungminjae@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/password-reset/request/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"password-reset",
+								"request",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"user@example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/auth/password-reset/request/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"auth",
+										"password-reset",
+										"request",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"비밀번호 재설정 링크가 이메일로 전송되었습니다.\",\r\n    \"data\": {}\r\n}"
+						}
+					]
+				},
+				{
+					"name": "비밀번호 초기화-확인",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password1\": \"newpassword\",\r\n    \"password2\": \"newpassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/password-reset/confirm/{uidb}/{token}/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"password-reset",
+								"confirm",
+								"{uidb}",
+								"{token}",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reset_token\": \"abcdef123456\",\r\n    \"new_password\": \"newSecurePassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/auth/password-reset/confirm/Ng/cp14um-ea87e7ce05d021685cd073ce0121a20e/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"password-reset",
+										"confirm",
+										"Ng",
+										"cp14um-ea87e7ce05d021685cd073ce0121a20e",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"비밀번호가 성공적으로 변경되었습니다.\"\r\n}"
+						},
+						{
+							"name": "비밀번호 초기화-확인",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password1\": \"newpassword\",\r\n    \"password2\": \"newpassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/auth/password-reset/confirm/{uidb}/{token}/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"auth",
+										"password-reset",
+										"confirm",
+										"{uidb}",
+										"{token}",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "csrf 토큰생성",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/auth/csrf/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"csrf",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "보안 테스트",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrftoken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/auth/test-auth/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"auth",
+								"test-auth",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "유저 조회",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/users/:user_id",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "이메일 중복 확인",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"a@a.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/users/check-email/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								"check-email",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "프로필 생성",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nickname",
+									"value": "ccc",
+									"type": "text"
+								},
+								{
+									"key": "birth_date",
+									"value": "2021-05-05",
+									"type": "text"
+								},
+								{
+									"key": "is_kid",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "img_path",
+									"type": "file",
+									"src": "/C:/Users/Admin/Pictures/istockphoto-1188445864-612x612.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "33"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_name\": \"temp\",\r\n  \"birth_date\": \"1972-04-23\",\r\n  \"profile_img_path\": \"s3://my-app-bucket/profiles/12345/profile.jpg\",\r\n  \"is_kid\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/6/profiles/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"6",
+										"profiles",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"프로필이 성공적으로 생성 되었습니다.\",\r\n    \"data\": {\r\n        \"id\": 32,\r\n        \"user_id\": 6,\r\n        \"nickname\": \"mate7\",\r\n        \"birth_date\": null,\r\n        \"img_path\": null,\r\n        \"is_kid\": false,\r\n        \"is_active\": false\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "프로필 삭제",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/:profile_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								":profile_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": ""
+								},
+								{
+									"key": "profile_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/6/profiles/30/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"6",
+										"profiles",
+										"30",
+										""
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "프로필 수정",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nickname\": \"\",\r\n  \"img_path\": \"s3://my-app-bucket/profiles/12345/profile.jpg\",\r\n  \"is_kid\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/:profile_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								":profile_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": ""
+								},
+								{
+									"key": "profile_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_name\": \"te2mp\",\r\n  \"profile_img_path\": \"s3://my-app-bucket/profiles/12345/profile.jpg\",\r\n  \"is_kid\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/6/profiles/33/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"6",
+										"profiles",
+										"33",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"프로필이 성공적으로 수정되었습니다.\",\r\n    \"data\": {\r\n        \"nickname\": \"tep\",\r\n        \"img_path\": \"s3://my-app-bucket/profiles/12345/profile.jpg\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "프로필 전환",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/:profile_id/activate/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								":profile_id",
+								"activate",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "33"
+								},
+								{
+									"key": "profile_id",
+									"value": "107"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"profile_id\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/users/6/profiles/21/activate/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"users",
+										"6",
+										"profiles",
+										"21",
+										"activate",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"프로필이 활성화되었습니다.\",\r\n    \"data\": {\r\n        \"profile\": {\r\n            \"id\": 28,\r\n            \"nickname\": \"tep\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "프로필 상세조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/:profile_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								":profile_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "1"
+								},
+								{
+									"key": "profile_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "프로필 전체 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/users/:user_id/profiles/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"profiles",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "이미지 전체 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/default-images/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								"default-images",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shorts",
+			"item": [
+				{
+					"name": "쇼츠 검색",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/?&title=",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": null,
+									"value": null
+								},
+								{
+									"key": "title",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts?title=여행가이드&cast=김철수,이영희&page=1",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts"
+									],
+									"query": [
+										{
+											"key": "title",
+											"value": "여행가이드"
+										},
+										{
+											"key": "cast",
+											"value": "김철수,이영희",
+											"description": ",로 구분"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "[\r\n    {\r\n        \"id\": 5,\r\n        \"title\": \"아이언맨 마지막 희생\",\r\n        \"thumbnail_url\": \"/thumb/short_avengers1.jpg\",\r\n        \"duration\": 30.2,\r\n        \"like_count\": 4000\r\n    }\r\n]"
+						},
+						{
+							"name": "400-Bad Request(타입)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts?title=오늘의 뉴스&cast=김철수,이영희&page=abc",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts"
+									],
+									"query": [
+										{
+											"key": "title",
+											"value": "오늘의 뉴스"
+										},
+										{
+											"key": "cast",
+											"value": "김철수,이영희"
+										},
+										{
+											"key": "page",
+											"value": "abc"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 400,\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"page\": [\r\n            \"유효한 정수가 아닙니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "404-Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{api-url}}/shorts?title=이얏하&cast=무야호&page=1",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts"
+									],
+									"query": [
+										{
+											"key": "title",
+											"value": "이얏하"
+										},
+										{
+											"key": "cast",
+											"value": "무야호"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 404,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스를 찾을 수 없습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"page\": [\r\n            \"해당 페이지를 찾을 수 없습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "쇼츠 전체조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/shorts/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"data\": [\r\n    {\r\n        \"short\": 1,\r\n        \"title\": \"오늘의 뉴스\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../1.jpg\",\r\n        \"duration\": 15.3,\r\n        \"view_count\": 31,\r\n        \"like_count\": 11,\r\n        \"created_at\": 2025-04-24 19:42:20\",\r\n        \"cast\": [\"배성재\"],\r\n        \"created_at\": \"2025-04-25\",\r\n    },\r\n    {\r\n        \"short\": 2,\r\n        \"title\": \"페이커 하이라이트\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../2.jpg\",\r\n        \"duration\": 61.3,\r\n        \"view_count\": 101,\r\n        \"like_count\": 21,\r\n        \"created_at\": 2025-04-24 19:44:20\",\r\n        \"cast\": [\"페이커\", \"아지르\"],\r\n        \"created_at\": \"2025-04-21\",\r\n    },\r\n    ],\r\n}"
+						},
+						{
+							"name": "404-Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{api-url}}/shorts/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 404,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스를 찾을 수 없습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"page\": [\r\n            \"해당 페이지를 찾을 수 없습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "반응 등록",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reaction_type\": \"LIKE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/shorts/:short_id/reaction/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"shorts",
+								":short_id",
+								"reaction",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "22"
+								},
+								{
+									"key": "short_id",
+									"value": "30"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reaction_type\": \"LIKE\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts/{1}/reaction",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts",
+										"{1}",
+										"reaction"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"reaction_type\": [\r\n            \"유효하지 않은 반응 유형입니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "404-Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\":123,\r\n    \"reaction_type\":\"끼얏호\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts/{{short_id}}/reaction",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts",
+										"{{short_id}}",
+										"reaction"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스를 찾을 수 없습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"reaction_type\": [\r\n            \"유효하지 않은 반응 유형입니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "409-Confilict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"profile_id\": 123,\r\n    \"reaction_type\": \"좋아요\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/shorts/{{short_id}}/reaction",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"shorts",
+										"{{short_id}}",
+										"reaction"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 409,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스가 이미 존재하거나 충돌이 발생했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"reaction_type\": [\r\n            \"이미 존재하는 반응 유형입니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "쇼츠s3링크생성",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"file_extension\": \"mp4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/upload/request-url/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								"upload",
+								"request-url",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/shorts/{short_id}/save",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"shorts",
+										"{short_id}",
+										"save"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"saved_video_id\": \"1\"\r\n    \"saved_at\": \"2025-04-24 19:42:20\"\r\n}ㄴ"
+						},
+						{
+							"name": "409-Conflict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/shorts/{short_id}/save",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"shorts",
+										"{short_id}",
+										"save"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 409,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스가 이미 존재하거나 충돌이 발생했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"reaction_type\": [\r\n            \"이미 프로필에 등록된 쇼츠입니다.\"\r\n        ]\r\n    }\r\n}"
+						},
+						{
+							"name": "404-Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/22/shorts/1/save",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"22",
+										"shorts",
+										"1",
+										"save"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 404,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스를 찾을 수 없습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"page\": [\r\n            \"해당 쇼츠를 찾을 수 없습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "쇼츠 상세 조회",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/:short_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								":short_id",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "short_id",
+									"value": "30"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "쇼츠 조회-인기순",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/?sort=popular",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "popular",
+									"description": "popular"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "쇼츠 조회-최신순",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/shorts/?sort=latest",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "latest",
+									"description": "latest"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "쇼츠 조회 by 단일 카테고리",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/shorts/?category=드라마",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "드라마"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "카테고리 조회-sort",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/?category=",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "latest",
+									"description": "latest, popular",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "좋아요 누른 쇼츠 모음",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/liked-shorts/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"liked-shorts",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "21"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "저장된 쇼츠 모음",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/saved-shorts",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"saved-shorts"
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "쇼츠 업로드",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"나는 멋쟁이 토마토1 - 동요\",\r\n    \"summary\": \"자연과 하나 된 삶의 이야기\",\r\n    \"short_video_url\": \"https://short.example.com/natural_life\",\r\n    \"thumbnail_url\": \"https://thumb.example.com/natural_life.jpg\",\r\n    \"duration\": \"130.0\",\r\n    \"program\": \"29\",\r\n    \"video\": \"59\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "프로필 쇼츠 저장",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/shorts/:short_id/save/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"shorts",
+								":short_id",
+								"save",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "3"
+								},
+								{
+									"key": "short_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "프로필 쇼츠 삭제",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/shorts/:short_id/saved/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"shorts",
+								":short_id",
+								"saved",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "3"
+								},
+								{
+									"key": "short_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "쇼츠 조회- 프로그램, id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/shorts/?program_id=3&sort=latest",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								""
+							],
+							"query": [
+								{
+									"key": "program_id",
+									"value": "3",
+									"description": "program_id"
+								},
+								{
+									"key": "sort",
+									"value": "latest",
+									"description": "popular, latest"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "추천쇼츠",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/shorts/recommended/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"shorts",
+								"recommended",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Program",
+			"item": [
+				{
+					"name": "프로그램 구독",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"program\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"program_id\": 123\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/subscriptions/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"subscriptions",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n  \"data\": {\r\n    \"subscription_id\": \"1\",\r\n    \"is_subscribed\": True\r\n    \"subscribed_at\": \"20254-04-24 19:42:20\",\r\n  },\r\n}"
+						},
+						{
+							"name": "409-Conflict",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"profile_id\": 123,\r\n    \"program_id\": 123\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/subscriptions/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"subscriptions",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 409,\r\n    \"message\": {\r\n        \"detail\": \"요청한 리소스가 이미 존재하거나 충돌이 발생했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"reaction_type\": [\r\n            \"프로필에서 이미 구독한 프로그램입니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "프로그램 구독 취소",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/:subscription_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								":subscription_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "1"
+								},
+								{
+									"key": "subscription_id",
+									"value": "31"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"program_id\": 123\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/subscriptions/",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"subscriptions",
+										""
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "400-Bad Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subscription_id\": 999\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/program/{{program_id}}",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"program",
+										"{{program_id}}"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"code\": 400,\r\n    \"message\": {\r\n        \"detail\": \"유효성 검사에 실패했습니다.\"\r\n    },\r\n    \"errors\": {\r\n        \"program_id\": [\r\n            \"해당 프로그램을을 찾을 수 없습니다.\"\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "구독프로그램 단일조회",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/:subscription_id/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								":subscription_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "3"
+								},
+								{
+									"key": "subscription_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subscription_id\": \"1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/subscriptions/{program_id}",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"subscriptions",
+										"{program_id}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"data\": [\r\n    {\r\n        \"is_subscribed\": True,\r\n        \"short_id\": 1,\r\n        \"title\": \"오늘의 긴급 뉴스\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../1.jpg\",\r\n        \"cast_list\": [\"배성재\"],\r\n        \"created_at\": \"2025-04-11\",\r\n    },\r\n    {\r\n        \"is_subscribed\": True,\r\n        \"short_id\": 2,\r\n        \"title\": \"오늘의 긴급 뉴스\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../1.jpg\",\r\n        \"cast_list\": [\"배성재\"],\r\n        \"created_at\": \"2025-04-11\",\r\n    },\r\n    ],\r\n}"
+						}
+					]
+				},
+				{
+					"name": "구독프로그램 전체 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "구독프로그램 단일조회-정렬",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/:subscription_id/?sort=popular",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								":subscription_id",
+								""
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "popular"
+								}
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "1"
+								},
+								{
+									"key": "subscription_id",
+									"value": "33"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "프로그램 단일 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/programs/:program/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"programs",
+								":program",
+								""
+							],
+							"variable": [
+								{
+									"key": "program",
+									"value": "8"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "전체 카테고리 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/categories/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"categories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "전체 프로그램 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/programs/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"programs",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "구독프로그램 쇼츠 전체조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/subscriptions/shorts/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"subscriptions",
+								"shorts",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "시청 목록 전체조회",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/watch-history/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"watch-history",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/shorts/watch-history",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"shorts",
+										"watch-history"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"data\": [\r\n    {\r\n        \"short\": 1,\r\n        \"title\": \"오늘의 뉴스\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../1.jpg\",\r\n        \"duration\": 15.3,\r\n        \"view_count\": 31,\r\n        \"like_count\": 11,\r\n        \"created_at\": 2025-04-24 19:42:20\",\r\n        \"cast\": [\"배성재\"],\r\n        \"created_at\": \"2025-04-25\",\r\n    },\r\n    {\r\n        \"short\": 2,\r\n        \"title\": \"페이커 하이라이트\",\r\n        \"thumbnail_url\": \"https://s3.bucket/.../2.jpg\",\r\n        \"duration\": 61.3,\r\n        \"view_count\": 101,\r\n        \"like_count\": 21,\r\n        \"created_at\": 2025-04-24 19:44:20\",\r\n        \"cast\": [\"페이커\", \"아지르\"],\r\n        \"created_at\": \"2025-04-21\",\r\n    },\r\n    ],\r\n}"
+						}
+					]
+				},
+				{
+					"name": "시청 목록 등록",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"short_video_id\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/profiles/:profile_id/watch-history/",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"profiles",
+								":profile_id",
+								"watch-history",
+								""
+							],
+							"variable": [
+								{
+									"key": "profile_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "성공",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n \"short_video_id\": 40   \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-url}}/profiles/{profile_id}/shorts/watch-history",
+									"host": [
+										"{{api-url}}"
+									],
+									"path": [
+										"profiles",
+										"{profile_id}",
+										"shorts",
+										"watch-history"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"history_id\": 123,\r\n    \"short_video_id\": 40,\r\n    \"watched_at\": \"2025-04-25 22:30\",\r\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"var baseUrl = \"http://localhost:8000/api\"\r",
+					"const authToken = pm.collectionVariables.get(\"authToken\");\r",
+					"\r",
+					"if (authToken && pm.info.requestName !== \"이메일 중복 확인\") {\r",
+					"    pm.request.headers.add({\r",
+					"        key: 'Authorization',\r",
+					"        value: 'Token ' + authToken\r",
+					"    });\r",
+					"    console.log(\"Pre-request: Authorization 헤더에 토큰 추가:\", authToken.substring(0, 20) + \"...\");\r",
+					"} else {\r",
+					"    console.warn(\"Pre-request: authToken 변수가 비어 있습니다. 먼저 로그인을 시도하세요.\");\r",
+					"}\r",
+					"\r",
+					"\r",
+					"// var profileId = 1\r",
+					"// pm.environment.set(\"profile-id\", profileId)\r",
+					"\r",
+					"// let responseJson = {};\r",
+					"\r",
+					"// if (pm.response.code === 200) {\r",
+					"//     try {\r",
+					"//         let responseJson = pm.response.json();  // JSON 응답 파싱\r",
+					"        \r",
+					"//         // 응답 데이터 타입 확인\r",
+					"//         console.log(\"responseJson type:\", typeof responseJson);\r",
+					"//         console.log(\"responseJson:\", responseJson);\r",
+					"\r",
+					"//         // profileId가 존재하는지 체크\r",
+					"//         if (responseJson.profileId) {\r",
+					"//             pm.environment.set(\"profile-id\", responseJson.profileId);\r",
+					"//         } else {\r",
+					"//             console.log(\"profileId not found in the response!\");\r",
+					"//         }\r",
+					"//     } catch (e) {\r",
+					"//         // JSON 파싱 오류 처리\r",
+					"//         console.log(\"Failed to parse JSON:\", e);\r",
+					"//         console.log(\"Response Text:\", pm.response.text());\r",
+					"//     }\r",
+					"// } else {\r",
+					"//     console.log(\"Error: Response code is not 200. Status code:\", null);\r",
+					"// }\r",
+					"\r",
+					"\r",
+					"// pm.request.headers.upsert({ // 자동 주입\r",
+					"//     key: 'X-Profile-ID',\r",
+					"//     value: pm.environment.get('profile-id')\r",
+					"// });"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.test(\"Status code is 200\", function () {\r",
+					"    pm.response.to.have.status(200);\r",
+					"});\r",
+					"\r",
+					"const response = pm.response.json();\r",
+					"if (response && response.token) {\r",
+					"    pm.collectionVariables.set(\"authToken\", response.token);\r",
+					"    console.log(\"DRF 토큰 저장 성공:\", response.token);\r",
+					"} else {\r",
+					"    console.error(\"DRF 토큰 응답에 'token' 키가 없습니다.\");\r",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api-url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
