@@ -54,9 +54,6 @@
 **전체 시스템 구성도**
 ![시스템 구성도](https://github.com/user-attachments/assets/cf484aae-e154-416e-83a1-bfa4d13da5ac)
 
-**기술 스택**
-![기술스택](https://github.com/user-attachments/assets/4a844e63-baf6-496b-8344-35b0839e470c)
-
 ---------------------------
 
 # 5. 요구사항 정의
@@ -135,40 +132,9 @@
 
 # 6. 프로젝트 설계
 
-## 1. 데이터 아키텍처
-**데이터 수집**
--  Open API, Open Dataset, Crawling
+## 기술 스택
 
-**데이터 저장**
-- PostgreSQL, AWS S3 (Cloud Storage)
-
-**분석 및 시각화**
-- Tableau, Power BI, Python, D3.js
-
-## 2. 기술 스택
-**Frontend**
-- HTML, CSS, JAVASCRIPT
-
-**Backend**
-- Python (Django)
-
-**DATABASE**
-- PostgreSQL
-
-**Cloud & DevOps**
-- AWS EC2 (Cloud Computing Instance)
-- AWS S3 (Cloud Storage)
-- AWS CloudFront (CDN)
-- AWS CloudWatch Logs (Log Management)
-- Nginx (Web Server)
-- Gunicorn (WSGI)
-- Let's Encrypt (SSL Certificate)
-- Git (Version Control)
-- Docker
-
-
-## 3. 설계 이미지
-![K-042](https://github.com/user-attachments/assets/f8817353-688c-4a89-a807-4c5db5f615f7)
+![기술스택](https://github.com/user-attachments/assets/4a844e63-baf6-496b-8344-35b0839e470c)
 
 ---------------------------
 
@@ -181,17 +147,7 @@
 
 
 --------------------------
-# 8. 사용자 기대 효과 및 한계점
-- **사용자가 얻을 수 있는 가치**
-
-| 항목               | 내용                                              |
-|--------------------|---------------------------------------------------|
-| 편리한 숏폼 콘텐츠 제공 | 시간 절약 및 편리한 숏폼 콘텐츠 소비              |
-| 맞춤형 콘텐츠 추천   | AI 기반 추천 시스템을 통한 개인화된 콘텐츠 제공   |
-| 고품질 프리미엄 콘텐츠 | 유튜브/틱톡과 차별화된 고품질 방송사 숏폼 콘텐츠 제공 |
-| 고급 사용자 경험    | IPTV 전용 고화질 콘텐츠 시청 및 안정적 서비스 제공 |
-| 광고 수익 모델      | 숏폼 콘텐츠 소비를 통한 광고 수익 창출 가능         |
-
+# 8. 현실적인 한계점
 
 - **현실적인 한계점**
 
