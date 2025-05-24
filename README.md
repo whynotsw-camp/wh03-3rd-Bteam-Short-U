@@ -29,7 +29,7 @@
 - **참여 인원**: 김진서, 이지예, 유병민, 장성권, 김민정
 - **일정 계획**
 
-[Uploading TeamGantt.pdf…]()
+![TeamGantt](https://github.com/user-attachments/assets/7ab049cd-7e53-4458-af24-d38b0791f11a)
 
 
 -----------------------------
