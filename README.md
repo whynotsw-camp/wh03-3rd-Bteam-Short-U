@@ -1,8 +1,4 @@
 # 프로젝트 기획서
-![image](https://github.com/whynotsw-camp/wh03-3rd-Bteam-Short-U/issues/4#issue-3087924827)
-
-![alt text](image-1.png)
-
 ## 1. 프로젝트 정의
 - **프로젝트명**: Short U
 - **목표**: IPTV 기반 숏폼 자동 생성 및 추천 서비스
