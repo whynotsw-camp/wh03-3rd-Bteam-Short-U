@@ -54,6 +54,10 @@
 
 ![시스템 구성도](https://github.com/user-attachments/assets/cf484aae-e154-416e-83a1-bfa4d13da5ac)
 
+![숏폼 파이프라인1](https://github.com/user-attachments/assets/7481e024-5c74-4ccd-96a0-670a09c47523)
+![숏폼 파이프라인2](https://github.com/user-attachments/assets/6c809aed-f624-4bee-8dc3-3085719dcb0f)
+
+
 ---------------------------
 
 # 5. 요구사항 정의
@@ -130,17 +134,13 @@
 
 ---------------------------
 
-# 6. 프로젝트 설계
-
-## 기술 스택
+# 6. 기술 스택
 
 ![기술스택](https://github.com/user-attachments/assets/4a844e63-baf6-496b-8344-35b0839e470c)
 
 ---------------------------
 
-# 7. 데이터 연동 정의서
-
-## 1. 데이터 정의
+# 7. 데이터 정의
 
 ![image](https://github.com/user-attachments/assets/b7b43628-2dd3-4a57-90dc-10c92f0c60b7)
 
